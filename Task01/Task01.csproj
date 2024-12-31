@@ -8,7 +8,7 @@
     </PropertyGroup>
     
     <ItemGroup>
-      <AdditionalFiles Include="Task01.txt">
+      <AdditionalFiles Include="input.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </AdditionalFiles>
     </ItemGroup>

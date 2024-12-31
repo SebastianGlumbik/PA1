@@ -26,7 +26,7 @@ internal static class Program
     private static void Main(string[] args)
     {
         var stopwatch = new Stopwatch();
-        var inputFileName = args.Length >= 1 ? args[0] : "Task01.txt";
+        var inputFileName = args.Length >= 1 ? args[0] : "input.txt";
         try 
         {
             stopwatch.Start();
