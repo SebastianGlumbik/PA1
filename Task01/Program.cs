@@ -23,16 +23,19 @@ internal static class Program
         }
     }
     
-    private static void Main(string[] args)
+    /// <summary>
+    /// Single-Row Facility Layout Problem (SRFLP)
+    /// </summary>
+    /// <param name="file">Input file</param>
+    private static void Main(string? file)
     {
         var stopwatch = new Stopwatch();
-        var inputFileName = args.Length >= 1 ? args[0] : "input.txt";
         try 
         {
             stopwatch.Start();
             
             // Read file
-            using var reader = new StreamReader(inputFileName);
+            using var reader = new StreamReader(file ?? throw new Exception("Specify input file."));
             
             // Get dimension / number of devices
             var dimension = int.Parse(reader.ReadLine() ?? throw new Exception("File is empty"));
@@ -40,7 +43,7 @@ internal static class Program
             // Get facility and their widths
             var facilities = new int[dimension];
             var widths = new int[dimension];
-            var widthValues = (reader.ReadLine() ?? throw new Exception("File is too short")).Split(' ');
+            var widthValues = (reader.ReadLine() ?? throw new Exception("File is too short (missing widths)")).Split(' ');
 
             // Get matrix / weights of transitions between locations
             var weights = new int[dimension, dimension];
@@ -51,7 +54,7 @@ internal static class Program
                 widths[i] = int.Parse(widthValues[i]);
                 
                 // Assign weights
-                var weightValues = (reader.ReadLine() ?? throw new Exception("File is too short")).Split(' ');
+                var weightValues = (reader.ReadLine() ?? throw new Exception("File is too short (missing weights) at line " + (i + 2))).Split(' ');
                 for (var j = i + 1; j < dimension; j++)
                 {
                     // Symmetric matrix
@@ -80,7 +83,8 @@ internal static class Program
         }
         catch (Exception e)
         {
-            Console.Error.WriteLine(e);
+            Console.Error.WriteLine(e.Message);
+            Console.Error.WriteLine("Try `" + AppDomain.CurrentDomain.FriendlyName + " --help`");
             Environment.Exit(1);
         }
     }
