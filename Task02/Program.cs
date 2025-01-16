@@ -8,7 +8,7 @@ internal static class Program
     {
         var stopwatch = new Stopwatch();
         const string inputFileName = "input2.csv";
-        const int numberOfPoints = 5;
+        var numberOfPoints = 5;
         const int iterations = 1;
         const bool printMatrices = true;
         try
@@ -17,6 +17,8 @@ internal static class Program
             
             // Read whole file, skip header and take N lines, for each line skip first value (label) and parse the rest
             var allValues = File.ReadLines(inputFileName).Skip(1).Take(numberOfPoints).Select(line => line.Split(',').Skip(1).Select(int.Parse).ToArray()).ToArray();
+            numberOfPoints = allValues.Length; // Update number of points to actual value
+            Console.WriteLine("Number of points: " + numberOfPoints);
             
             var similarityMatrix = new double[numberOfPoints, numberOfPoints];
             
@@ -28,17 +30,25 @@ internal static class Program
             
             // Calculate similarity matrix
             var minValue = double.MaxValue;
-            Parallel.For(0, allValues.Length, options, i =>
+            object lockObject = new();
+            Parallel.For(0, allValues.Length, options, () => minValue, (i, _, localMin) =>
             {
                 for (var j = i + 1; j < allValues.Length; j++)
                 {
-                    var valueSum = 0;
+                    var valueSum = 0.0;
                     for (var k = 0; k < allValues[i].Length; k++)
                     {
-                        valueSum += (int)Math.Pow(allValues[i][k] - allValues[j][k], 2);
+                        valueSum += Math.Pow(allValues[i][k] - allValues[j][k], 2);
                     }
                     similarityMatrix[i, j] = similarityMatrix[j, i] = -valueSum;
-                    minValue = Math.Min(minValue, -valueSum);
+                    localMin = Math.Min(localMin, -valueSum);
+                }
+                return localMin;
+            }, localMin =>
+            {
+                lock (lockObject)
+                {
+                    minValue = Math.Min(minValue, localMin);
                 }
             });
 
